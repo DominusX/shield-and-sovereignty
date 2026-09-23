@@ -3,9 +3,21 @@ from PIL import Image
 import math
 import time
 
-def run_airtight_manifestation(user_seed=1234, steps=30):
+def run_airtight_manifestation(user_seed=None, steps=30):
+
     start_time = time.perf_counter()
-    np.random.seed(user_seed)
+    
+    # --- CHANGE START ---
+    if user_seed is None:
+        # Generate a large, unpredictable integer using the system clock ticks
+        calculated_seed = int(time.perf_counter() * 100000) % 4294967295
+        np.random.seed(calculated_seed)
+        # Update user_seed variable so the logs print the actual calculated seed
+        user_seed = calculated_seed
+    else:
+        # Keep it completely deterministic if a specific seed is passed
+        np.random.seed(user_seed)
+    # --- CHANGE END ---
 
     # 1. Starting Chaos: Absolute Gaussian Noise (Mean 0, Std 1)
     # Complete disconnection from any pre-existing image file or asset database.
@@ -62,6 +74,26 @@ def run_airtight_manifestation(user_seed=1234, steps=30):
 
     return Image.fromarray(np.clip(canvas, 0, 255).astype(np.uint8))
 
+# INTERACTIVE TERMINAL PROMPT (User picks a seed or leave it blank)
 if __name__ == "__main__":
-    image = run_airtight_manifestation(user_seed=1234, steps=30)
+    print("=== AIRTIGHT DDPM GENERATION ENGINE ===")
+    user_input = input("Enter a numerical seed (or press [ENTER] for a completely random seed): ").strip()
+
+    if user_input == "":
+        # The user left it blank; trigger the clock-tied randomized seed pipeline
+        selected_seed = None
+        print("⚡ No seed provided. Initiating dynamic time-randomized seed...")
+    else:
+        try:
+            # Convert the text input into a standard integer
+            selected_seed = int(user_input)
+            print(f"🔒 Seed confirmed: {selected_seed}. Running deterministic pipeline...")
+        except ValueError:
+            # Handle accidental typos or text inputs gracefully by defaulting to random
+            selected_seed = None
+            print("⚠️ Invalid input detected (must be an integer). Defaulting to random seed...")
+
+    # Execute the core engine function using the user's choice
+    image = run_airtight_manifestation(user_seed=selected_seed)
     image.save('airtight_manifested_truth.png')
+    print("💾 Generation complete. Asset saved as 'airtight_manifested_truth.png'.")
