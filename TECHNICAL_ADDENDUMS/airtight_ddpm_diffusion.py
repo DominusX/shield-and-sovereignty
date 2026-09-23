@@ -30,6 +30,9 @@ def run_airtight_manifestation(user_seed=1234, steps=30):
 
         ab_curr = alpha_bar(t_current)
         ab_next = alpha_bar(t_next)
+        
+        # Introduce safety numerical floor to explicitly prevent ZeroDivisionError
+        ab_curr_safe = max(ab_curr, 1e-10)
 
         # Define an abstract, pure mathematical Intent (Coordinate Frequency Field)
         # This acts as our "pseudo-neural network gradient prediction" (eps_predicted)
@@ -45,7 +48,7 @@ def run_airtight_manifestation(user_seed=1234, steps=30):
         # DDPM Reverse Step Equation: Predict the denoised latent state
         # X_{t-1} = (1 / sqrt(alpha)) * (X_t - ((1 - alpha) / sqrt(1 - alpha_bar)) * eps)
         # Simplified execution utilizing direct variance boundary scaling:
-        latents = (latents * math.sqrt(ab_next / ab_curr)) + (eps_predicted * (math.sqrt(1 - ab_next) - math.sqrt(1 - ab_curr) * math.sqrt(ab_next / ab_curr)))
+        latents = (latents * math.sqrt(ab_next / ab_curr_safe)) + (eps_predicted * (math.sqrt(1 - ab_next) - math.sqrt(1 - ab_curr) * math.sqrt(ab_next / ab_curr_safe)))
 
     # 4. Final Manifestation: Map standard latent deviations back to visible RGB space
     canvas = ((latents - latents.min()) / (latents.max() - latents.min()) * 255.0)
