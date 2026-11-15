@@ -61,3 +61,11 @@ True global interaction is not achieved by forcing every sovereign creator to su
 
 > *“And say, 'Work, for Allah will see your work, and so will His Messenger and the believers.'”*  
 > — **Surah At-Tawbah [9:105]**
+
+### 🔬 Verifying `airtight_ddpm_diffusion.py` Locally
+
+This standalone script mirrors the core mathematical solver of a production diffusion pipeline using only **NumPy** and **Pillow**—zero model weights, zero external APIs, and zero image databases:
+
+1. **64-Bit Seed Determinism (`np.random.default_rng`):** Press `[ENTER]` to generate an image from fresh 64-bit OS entropy (`secrets.randbits(64)`), or input any logged integer seed to reproduce the exact pixel array deterministically.
+2. **State-Coupled Denoising (`predict_noise`):** At each reverse step, the noise predictor reads both the spatial intent field and the evolving noisy `latents` tensor. Different seeds naturally diverge into distinct micro-textures while preserving the underlying mathematical intent.
+3. **Cosine Schedule & DDIM Solver:** Implements the Nichol & Dhariwal cosine variance schedule ($\bar{\alpha}_t$) alongside explicit $x_0$-prediction and dynamic thresholding.
